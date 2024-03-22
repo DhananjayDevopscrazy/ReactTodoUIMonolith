@@ -1,0 +1,26 @@
+trigger: none
+
+pool: 
+vmImage: ubuntu-latest
+stages:
+- stage: Build_Stage
+  displayName: Build_Stage
+  jobs:
+  - job: Build_Stage
+    displayName: Build_Stage
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSource: 'spec'
+        versionSpec: '16.x'
+    - task: CmdLine@2
+      inputs:
+        script: |
+          npm install
+          npm run build
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/build'
+        ArtifactName: 'todo01'
+        publishLocation: 'Container'
+    
