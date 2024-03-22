@@ -23,4 +23,33 @@ stages:
         PathtoPublish: '$(Build.SourcesDirectory)/build'
         ArtifactName: 'todo01'
         publishLocation: 'Container'
+
+- stage: Deployment_Stage
+  displayName: Deployment_Stage
+  jobs:
+  - job: Deployment_Stage
+    displayName: Deployment_Stage
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        buildType: 'current'
+        artifactName: 'todo01'
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFilesOverSSH@0
+      inputs:
+        sshEndpoint: 'Todosshconnection22march'
+        sourceFolder: '$(Build.ArtifactStagingDirectory)'
+        contents: '**'
+        targetFolder: '/tmp/buildartifact'
+        readyTimeout: '20000'
+    - task: SSH@0
+      inputs:
+        sshEndpoint: 'Todosshconnection22march'
+        runOptions: 'commands'
+        commands: |
+          sudo apt-get update
+          sudo apt-get install nginx -y
+          sudo cp -r /tmp/buildartifact/* /var/www/html
+          sudo systemctl restart nginx
+        readyTimeout: '20000'
     
